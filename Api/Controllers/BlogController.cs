@@ -7,6 +7,7 @@ namespace Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Produces("application/json")]
 public class BlogController : ControllerBase
 {
     private readonly IBlogService _blogService;

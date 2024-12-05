@@ -14,7 +14,23 @@ builder.Services.AddSingleton<ChangeFeedService>();
 // Register controllers
 builder.Services.AddControllers();
 
+
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:4200")
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
+});
+
+
 var app = builder.Build();
+
+app.UseCors("AllowSpecificOrigin");
 
 // Initialize CosmosDbService
 var cosmosDbService = app.Services.GetRequiredService<ICosmosDbService>();
@@ -27,6 +43,7 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
 
 app.MapControllers();
 
