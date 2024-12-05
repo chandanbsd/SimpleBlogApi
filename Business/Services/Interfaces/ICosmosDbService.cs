@@ -11,4 +11,6 @@ public interface ICosmosDbService
     Task<IEnumerable<Post>> GetAllPostsAsync();
 
     Task<Post> GetPostByIdAsync(string id, string partitionKey);
+
+    Task<IEnumerable<PostVersion>> GetAuditTrail(string postId);
 }

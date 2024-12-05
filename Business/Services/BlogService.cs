@@ -46,6 +46,12 @@ public class BlogService : IBlogService
         return await _cosmosDbService.GetAllPostsAsync();
     }
 
+    public async Task<IEnumerable<PostVersion>> GetAuditTrail(string postId)
+    {
+        return await _cosmosDbService.GetAuditTrail(postId);
+
+    }
+
     public async Task<Post> GetPostById(string id)
     {
         return await _cosmosDbService.GetPostByIdAsync(id, id);

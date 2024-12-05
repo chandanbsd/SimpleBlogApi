@@ -10,6 +10,7 @@ public class CosmosDbService : ICosmosDbService
 {
     private readonly ChangeFeedService _changeFeedService;
     private Container _postsContainer;
+    private Container _auditContainer;
 
     public CosmosDbService(IConfiguration configuration, ChangeFeedService changeFeedService)
     {
@@ -25,6 +26,12 @@ public class CosmosDbService : ICosmosDbService
     public async Task UpdatePostAsync<T>(T item, string id, string partitionKey)
     {
         await _postsContainer.ReplaceItemAsync(item, id, new PartitionKey(partitionKey));
+    }
+    
+    public async Task<IEnumerable<PostVersion>> GetAuditTrail(string postId)
+    {
+        var query = $"SELECT * FROM c WHERE c.PostId = '{postId}'";
+        return await QueryAuditAsync<PostVersion>(query);
     }
 
     public async Task<IEnumerable<Post>> GetAllPostsAsync()
@@ -49,7 +56,10 @@ public class CosmosDbService : ICosmosDbService
         _postsContainer =
             await databaseResponse.Database.CreateContainerIfNotExistsAsync(configuration["CosmosDb:PostsContainer"],
                 "/id");
+        _auditContainer =
+            await databaseResponse.Database.CreateContainerIfNotExistsAsync(configuration["CosmosDb:AuditContainer"], "/PostId");
         await _changeFeedService.StartChangeFeedProcessorAsync();
+        
     }
 
     private async Task<IEnumerable<T>> QueryPostsAsync<T>(string query) where T : Post
@@ -63,6 +73,23 @@ public class CosmosDbService : ICosmosDbService
             {
                 var itemResponse = await _postsContainer.ReadItemAsync<T>(item.Id, new PartitionKey(item.Id));
                 item.ETag = itemResponse.ETag; // Set the ETag for each item
+                results.Add(item);
+            }
+        }
+
+        return results;
+    }
+    
+    private async Task<IEnumerable<T>> QueryAuditAsync<T>(string query) where T : PostVersion
+    {
+        var iterator = _auditContainer.GetItemQueryIterator<T>(new QueryDefinition(query));
+        var results = new List<T>();
+        while (iterator.HasMoreResults)
+        {
+            var response = await iterator.ReadNextAsync();
+            foreach (var item in response)
+            {
+                var itemResponse = await _auditContainer.ReadItemAsync<T>(item.Id, new PartitionKey(item.PostId));
                 results.Add(item);
             }
         }

@@ -47,9 +47,9 @@ public class BlogController : ControllerBase
         return Ok();
     }
 
-    // DELETE api/<BlogController>/5
-    [HttpDelete("{id}")]
-    public void Delete(int id)
+    [HttpGet("Audit/{postId}")]
+    public async Task<IEnumerable<PostVersion>> GetAuditTrail(string postId)
     {
+        return await _blogService.GetAuditTrail(postId);
     }
 }

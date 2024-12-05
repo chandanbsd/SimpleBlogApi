@@ -6,5 +6,5 @@ public class PostPayload
     public required string Title { get; set; }
     public required string Content { get; set; }
     
-    public required string ETag { get; set; }
+    public string? ETag { get; set; }
 }

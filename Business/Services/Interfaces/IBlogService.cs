@@ -10,6 +10,8 @@ public interface IBlogService
     Task UpdatePost(Post post);
 
     Task<IEnumerable<Post>> GetAllPosts();
+    
+    Task<IEnumerable<PostVersion>> GetAuditTrail(string id);
 
-    Task<Post> GetPostById(string id);
+    Task<Post> GetPostById(string postId);
 }
