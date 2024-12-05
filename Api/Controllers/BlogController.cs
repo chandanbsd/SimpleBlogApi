@@ -1,5 +1,5 @@
 using Business.Services.Interfaces;
-using Data.DTOs;
+using Data.Payloads;
 using Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,7 +32,7 @@ public class BlogController : ControllerBase
 
     // POST api/<BlogController>
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] PostDto post)
+    public async Task<IActionResult> Post([FromBody] PostPayload post)
     {
         await _blogService.AddPost(post);
         return Ok();

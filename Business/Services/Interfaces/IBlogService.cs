@@ -1,11 +1,11 @@
-﻿using Data.DTOs;
+﻿using Data.Payloads;
 using Data.Entities;
 
 namespace Business.Services.Interfaces;
 
 public interface IBlogService
 {
-    Task AddPost(PostDto post);
+    Task AddPost(PostPayload post);
 
     Task UpdatePost(Post post);
 

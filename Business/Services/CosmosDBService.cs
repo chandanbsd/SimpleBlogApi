@@ -36,7 +36,9 @@ public class CosmosDbService : ICosmosDbService
     public async Task<Post> GetPostByIdAsync(string id, string partitionKey)
     {
         var response = await _postsContainer.ReadItemAsync<Post>(id, new PartitionKey(partitionKey));
-        return response.Resource;
+        var post = response.Resource;
+        post.ETag = response.ETag;
+        return post;
     }
 
     private async Task InitializeCosmosDbAsync(IConfiguration configuration)
@@ -50,14 +52,19 @@ public class CosmosDbService : ICosmosDbService
         await _changeFeedService.StartChangeFeedProcessorAsync();
     }
 
-    private async Task<IEnumerable<T>> QueryPostsAsync<T>(string query)
+    private async Task<IEnumerable<T>> QueryPostsAsync<T>(string query) where T : Post
     {
         var iterator = _postsContainer.GetItemQueryIterator<T>(new QueryDefinition(query));
         var results = new List<T>();
         while (iterator.HasMoreResults)
         {
             var response = await iterator.ReadNextAsync();
-            results.AddRange(response.ToList());
+            foreach (var item in response)
+            {
+                var itemResponse = await _postsContainer.ReadItemAsync<T>(item.Id, new PartitionKey(item.Id));
+                item.ETag = itemResponse.ETag; // Set the ETag for each item
+                results.Add(item);
+            }
         }
 
         return results;

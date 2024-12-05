@@ -1,8 +1,10 @@
-﻿namespace Data.DTOs;
+﻿namespace Data.Payloads;
 
-public class PostDto
+public class PostPayload
 {
     public required string Author { get; set; }
     public required string Title { get; set; }
     public required string Content { get; set; }
+    
+    public required string ETag { get; set; }
 }
