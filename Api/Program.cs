@@ -20,11 +20,9 @@ var app = builder.Build();
 var cosmosDbService = app.Services.GetRequiredService<ICosmosDbService>();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 
